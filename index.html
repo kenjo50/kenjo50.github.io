@@ -1,1 +1,1304 @@
-<h1>Hello!</h1>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistik 1 Karteikarten - SoSe 2025</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .nav-btn.active {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .week-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .week-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .week-title {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .flashcard {
+            background: white;
+            border-radius: 15px;
+            height: 400px;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .flashcard:hover {
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            transform: rotateY(180deg);
+        }
+
+        .card-front h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .card-front p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            opacity: 0.95;
+        }
+
+        .card-back ul {
+            list-style: none;
+            font-size: 1rem;
+            line-height: 1.6;
+            text-align: left;
+            width: 100%;
+        }
+
+        .card-back li {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .card-back li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .formula {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+        }
+
+        .flip-hint {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .flashcard {
+                height: 350px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Statistik 1 Karteikarten</h1>
+            <p>SoSe 2025 - TU Berlin - Klicken Sie auf die Karten zum Umdrehen</p>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn active" onclick="showWeek('week16')">KW 16 - Einführung</button>
+            <button class="nav-btn" onclick="showWeek('week17')">KW 17 - Häufigkeiten</button>
+            <button class="nav-btn" onclick="showWeek('week18')">KW 18 - Lagemaße</button>
+            <button class="nav-btn" onclick="showWeek('week19')">KW 19 - Streuung</button>
+            <button class="nav-btn" onclick="showWeek('week20')">KW 20 - Konzentration</button>
+            <button class="nav-btn" onclick="showWeek('week21')">KW 21 - Korrelation</button>
+            <button class="nav-btn" onclick="showWeek('week22')">KW 22 - Kombinatorik</button>
+            <button class="nav-btn" onclick="showWeek('week23')">KW 23 - Wahrscheinlichkeit I</button>
+            <button class="nav-btn" onclick="showWeek('week24')">KW 24 - Wahrscheinlichkeit II</button>
+            <button class="nav-btn" onclick="showWeek('week25')">KW 25 - Zufallsvariablen</button>
+            <button class="nav-btn" onclick="showWeek('week26')">KW 26 - Verteilungen I</button>
+            <button class="nav-btn" onclick="showWeek('week27')">KW 27 - Verteilungen II</button>
+        </div>
+
+        <!-- KW 16: Einführung in die Statistik -->
+        <div id="week16" class="week-section active">
+            <div class="week-title">
+                <h2>KW 16: Organisation & Einführung in die Statistik</h2>
+                <p>Grundbegriffe der Statistik, Skalierungsarten</p>
+            </div>
+            <div class="cards-grid">
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Variationskoeffizient</h3>
+                        <p>Was ist der Variationskoeffizient und wofür wird er verwendet?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Definition:</strong></li>
+                            <div class="formula">V = s / x̄ (mit x̄ > 0)</div>
+                            <li><strong>Zweck:</strong> Messung der relativen Streuung</li>
+                            <li><strong>Vorteil:</strong> Maßstabsunabhängig, ermöglicht Vergleiche zwischen verschiedenen Datensätzen</li>
+                            <li><strong>Beispiel:</strong> Vergleich der Volatilität verschiedener Aktienkurse</li>
+                            <li><strong>Interpretation:</strong> Standardabweichung als Anteil des Mittelwertes</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Streuungszerlegung</h3>
+                        <p>Wie kann die Gesamtstreuung in interne und externe Streuung zerlegt werden?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Streuungszerlegungsformel:</strong></li>
+                            <div class="formula">s²_ges = s²_intern + s²_extern</div>
+                            <li><strong>Interne Streuung:</strong> Durchschnittliche Streuung innerhalb der Gruppen</li>
+                            <li><strong>Externe Streuung:</strong> Streuung zwischen den Gruppenmittelwerten</li>
+                            <li><strong>Anwendung:</strong> Analyse von Gruppenunterschieden (z.B. verschiedene Behandlungsmethoden)</li>
+                            <li><strong>Interpretation:</strong> Hohe externe Streuung → starke Gruppenunterschiede</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KW 20: Konzentrationsmessung -->
+        <div id="week20" class="week-section">
+            <div class="week-title">
+                <h2>KW 20: Konzentrationsmessung</h2>
+                <p>Lorenzkurve, Gini-Koeffizient, Herfindahl-Index, Konzentrationsrate</p>
+            </div>
+            <div class="cards-grid">
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Lorenzkurve</h3>
+                        <p>Was ist die Lorenzkurve und wie wird sie interpretiert?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Definition:</strong> Grafische Darstellung der Konzentration</li>
+                            <li><strong>Achsen:</strong> x-Achse: kumulierte Merkmalsträger, y-Achse: kumulierte Merkmalssumme</li>
+                            <li><strong>Gleichverteilungsgerade:</strong> Diagonale bei perfekter Gleichverteilung</li>
+                            <li><strong>Interpretation:</strong> Je weiter die Kurve von der Diagonalen abweicht, desto höher die Konzentration</li>
+                            <li><strong>Anwendung:</strong> Einkommens- oder Vermögensverteilung</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Gini-Koeffizient</h3>
+                        <p>Wie wird der Gini-Koeffizient berechnet und interpretiert?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Definition:</strong> Maß für die Ungleichverteilung</li>
+                            <li><strong>Berechnung:</strong> Verhältnis der Fläche zwischen Lorenzkurve und Gleichverteilungsgeraden zur Fläche unter der Gleichverteilungsgeraden</li>
+                            <li><strong>Wertebereich:</strong> 0 ≤ G ≤ 1</li>
+                            <li><strong>Interpretation:</strong>
+                                <ul style="margin-top: 8px; font-size: 0.9rem;">
+                                    <li>• G = 0: Perfekte Gleichverteilung</li>
+                                    <li>• G = 1: Maximale Konzentration</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Herfindahl-Index</h3>
+                        <p>Was ist der Herfindahl-Index und wofür wird er verwendet?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Definition:</strong> Konzentrationsmaß basierend auf quadrierten Marktanteilen</li>
+                            <li><strong>Formel:</strong></li>
+                            <div class="formula">H = Σ pᵢ²</div>
+                            <li><strong>Wertebereich:</strong> 1/n ≤ H ≤ 1</li>
+                            <li><strong>Anwendung:</strong> Marktkonzentration, Wettbewerbsanalyse</li>
+                            <li><strong>Interpretation:</strong> Höhere Werte = höhere Konzentration</li>
+                            <li><strong>Vorteil:</strong> Berücksichtigt alle Marktanteile, nicht nur die größten</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Konzentrationsrate</h3>
+                        <p>Was sind Konzentrationsraten und wie werden sie berechnet?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Definition:</strong> Anteil der k größten Unternehmen am Gesamtmarkt</li>
+                            <li><strong>Notation:</strong> CRₖ (z.B. CR₄ für die größten 4 Unternehmen)</li>
+                            <li><strong>Berechnung:</strong></li>
+                            <div class="formula">CRₖ = Σ(i=1 bis k) pᵢ</div>
+                            <li><strong>Interpretation:</strong> CR₄ = 0.6 bedeutet: Die 4 größten Unternehmen haben 60% Marktanteil</li>
+                            <li><strong>Anwendung:</strong> Einfache Marktkonzentrationsanalyse</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KW 21: Mehrdimensionale Daten -->
+        <div id="week21" class="week-section">
+            <div class="week-title">
+                <h2>KW 21: Mehrdimensionale Daten</h2>
+                <p>Kontingenztabellen, Kontingenzkoeffizient, Korrelation, Rangkorrelation</p>
+            </div>
+            <div class="cards-grid">
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Kontingenztabellen</h3>
+                        <p>Was sind Kontingenztabellen und wofür werden sie verwendet?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Definition:</strong> Kreuztabelle zur Darstellung der gemeinsamen Häufigkeitsverteilung zweier Merkmale</li>
+                            <li><strong>Struktur:</strong> Zeilen = Merkmal X, Spalten = Merkmal Y</li>
+                            <li><strong>Randhäufigkeiten:</strong> Summen der Zeilen/Spalten</li>
+                            <li><strong>Anwendung:</strong> Analyse von Zusammenhängen zwischen kategorialen Merkmalen</li>
+                            <li><strong>Beispiel:</strong> Geschlecht × Produktpräferenz</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Bravais-Pearson Korrelationskoeffizient</h3>
+                        <p>Wie wird der Korrelationskoeffizient für metrische Daten berechnet?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Formel:</strong></li>
+                            <div class="formula">r = sₓᵧ / (sₓ × sᵧ)</div>
+                            <li><strong>Kovarianz:</strong></li>
+                            <div class="formula">sₓᵧ = (1/n) × Σ(xᵢ - x̄)(yᵢ - ȳ)</div>
+                            <li><strong>Wertebereich:</strong> -1 ≤ r ≤ 1</li>
+                            <li><strong>Interpretation:</strong>
+                                <ul style="margin-top: 8px; font-size: 0.9rem;">
+                                    <li>• r > 0: positiver linearer Zusammenhang</li>
+                                    <li>• r < 0: negativer linearer Zusammenhang</li>
+                                    <li>• |r| ≈ 1: starker Zusammenhang</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Rangkorrelation nach Spearman</h3>
+                        <p>Wie wird der Rangkorrelationskoeffizient berechnet?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Anwendung:</strong> Ordinalskalierte Merkmale</li>
+                            <li><strong>Vorgehen:</strong> Daten in Ränge umwandeln, dann Korrelation der Ränge berechnen</li>
+                            <li><strong>Vereinfachte Formel (ohne Bindungen):</strong></li>
+                            <div class="formula">rₛ = 1 - (6 × Σd²) / (n(n²-1))</div>
+                            <li><strong>d:</strong> Rangdifferenzen</li>
+                            <li><strong>Vorteil:</strong> Robust gegen Ausreißer, misst monotone Zusammenhänge</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Zusammenhangsmaße Übersicht</h3>
+                        <p>Welche Zusammenhangsmaße werden für welche Skalierungen verwendet?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Kardinal × Kardinal:</strong> Bravais-Pearson Korrelationskoeffizient</li>
+                            <li><strong>Ordinal × Ordinal:</strong> Rangkorrelation (Spearman/Kendall)</li>
+                            <li><strong>Nominal × Nominal:</strong> Kontingenzkoeffizient</li>
+                            <li><strong>Gemischt:</strong> Je nach niedrigstem Skalierungsniveau</li>
+                            <li><strong>Wichtig:</strong> Korrelation ≠ Kausalität!</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KW 22: Kombinatorik -->
+        <div id="week22" class="week-section">
+            <div class="week-title">
+                <h2>KW 22: Kombinatorik</h2>
+                <p>Grundlagen der Kombinatorik für die Wahrscheinlichkeitsrechnung</p>
+            </div>
+            <div class="cards-grid">
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Permutationen</h3>
+                        <p>Wie viele Möglichkeiten gibt es, n Objekte anzuordnen?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Permutationen ohne Wiederholung:</strong></li>
+                            <div class="formula">n!</div>
+                            <li><strong>Permutationen mit Wiederholung:</strong></li>
+                            <div class="formula">n! / (n₁! × n₂! × ... × nₖ!)</div>
+                            <li><strong>Beispiel:</strong> Anordnung der Buchstaben STATISTIK</li>
+                            <li><strong>Anwendung:</strong> Reihenfolge ist wichtig</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Variationen</h3>
+                        <p>Wie viele Möglichkeiten gibt es, k aus n Objekten auszuwählen (mit Reihenfolge)?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Variationen ohne Wiederholung:</strong></li>
+                            <div class="formula">V(n,k) = n! / (n-k)!</div>
+                            <li><strong>Variationen mit Wiederholung:</strong></li>
+                            <div class="formula">Vᵣ(n,k) = nᵏ</div>
+                            <li><strong>Beispiel:</strong> PIN-Code mit 4 Ziffern</li>
+                            <li><strong>Merkmal:</strong> Reihenfolge ist wichtig</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Kombinationen</h3>
+                        <p>Wie viele Möglichkeiten gibt es, k aus n Objekten auszuwählen (ohne Reihenfolge)?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Kombinationen ohne Wiederholung:</strong></li>
+                            <div class="formula">C(n,k) = (n k) = n! / (k! × (n-k)!)</div>
+                            <li><strong>Kombinationen mit Wiederholung:</strong></li>
+                            <div class="formula">Cᵣ(n,k) = (n+k-1 k)</div>
+                            <li><strong>Beispiel:</strong> Lotto "6 aus 49"</li>
+                            <li><strong>Merkmal:</strong> Reihenfolge ist nicht wichtig</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Entscheidungsbaum für Kombinatorik</h3>
+                        <p>Wie entscheide ich, welche Formel zu verwenden ist?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Frage 1:</strong> Ist die Reihenfolge wichtig?
+                                <ul style="margin-top: 8px; font-size: 0.9rem;">
+                                    <li>• Ja → Variation/Permutation</li>
+                                    <li>• Nein → Kombination</li>
+                                </ul>
+                            </li>
+                            <li><strong>Frage 2:</strong> Sind Wiederholungen erlaubt?
+                                <ul style="margin-top: 8px; font-size: 0.9rem;">
+                                    <li>• Ja → mit Wiederholung</li>
+                                    <li>• Nein → ohne Wiederholung</li>
+                                </ul>
+                            </li>
+                            <li><strong>Frage 3:</strong> Alle n Objekte oder nur k?</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KW 23: Wahrscheinlichkeitsrechnung (I) -->
+        <div id="week23" class="week-section">
+            <div class="week-title">
+                <h2>KW 23: Wahrscheinlichkeitsrechnung (I)</h2>
+                <p>Zufallsvorgänge, Ereignisse, Mengenlehre, Wahrscheinlichkeiten</p>
+            </div>
+            <div class="cards-grid">
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Grundbegriffe der Wahrscheinlichkeitsrechnung</h3>
+                        <p>Was sind Zufallsvorgang, Ergebnisraum und Ereignis?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Zufallsvorgang:</strong> Vorgang mit unsicherem Ausgang</li>
+                            <li><strong>Ergebnisraum Ω:</strong> Menge aller möglichen Ergebnisse</li>
+                            <li><strong>Elementarereignis:</strong> Einzelnes Ergebnis ω ∈ Ω</li>
+                            <li><strong>Ereignis A:</strong> Teilmenge des Ergebnisraums (A ⊆ Ω)</li>
+                            <li><strong>Beispiel:</strong> Würfel: Ω = {1,2,3,4,5,6}, A = "gerade Zahl" = {2,4,6}</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Mengenlehre für Ereignisse</h3>
+                        <p>Wie werden Ereignisse mit Mengenoperationen verknüpft?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Vereinigung A ∪ B:</strong> A oder B tritt ein</li>
+                            <li><strong>Durchschnitt A ∩ B:</strong> A und B treten ein</li>
+                            <li><strong>Komplement Aᶜ:</strong> A tritt nicht ein</li>
+                            <li><strong>Differenz A \ B:</strong> A aber nicht B</li>
+                            <li><strong>Disjunkt:</strong> A ∩ B = ∅ (schließen sich aus)</li>
+                            <li><strong>De Morgan:</strong> (A ∪ B)ᶜ = Aᶜ ∩ Bᶜ</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Axiome von Kolmogorov</h3>
+                        <p>Welche drei Axiome definieren eine Wahrscheinlichkeit?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Axiom 1 (Nicht-Negativität):</strong></li>
+                            <div class="formula">P(A) ≥ 0 für alle A</div>
+                            <li><strong>Axiom 2 (Normiertheit):</strong></li>
+                            <div class="formula">P(Ω) = 1</div>
+                            <li><strong>Axiom 3 (σ-Additivität):</strong></li>
+                            <div class="formula">P(A₁ ∪ A₂ ∪ ...) = P(A₁) + P(A₂) + ...</div>
+                            <li>für paarweise disjunkte Ereignisse</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Wichtige Wahrscheinlichkeitsregeln</h3>
+                        <p>Welche Regeln folgen aus den Axiomen?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Gegenereignis:</strong></li>
+                            <div class="formula">P(Aᶜ) = 1 - P(A)</div>
+                            <li><strong>Additionsregel:</strong></li>
+                            <div class="formula">P(A ∪ B) = P(A) + P(B) - P(A ∩ B)</div>
+                            <li><strong>Für disjunkte Ereignisse:</strong></li>
+                            <div class="formula">P(A ∪ B) = P(A) + P(B)</div>
+                            <li><strong>Wertebereich:</strong> 0 ≤ P(A) ≤ 1</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KW 24: Wahrscheinlichkeitsrechnung (II) -->
+        <div id="week24" class="week-section">
+            <div class="week-title">
+                <h2>KW 24: Wahrscheinlichkeitsrechnung (II)</h2>
+                <p>Bedingte Wahrscheinlichkeit, Unabhängigkeit, Totale Wahrscheinlichkeit, Satz von Bayes</p>
+            </div>
+            <div class="cards-grid">
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Bedingte Wahrscheinlichkeit</h3>
+                        <p>Wie wird die bedingte Wahrscheinlichkeit definiert und berechnet?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Definition:</strong></li>
+                            <div class="formula">P(A|B) = P(A ∩ B) / P(B)</div>
+                            <li><strong>Voraussetzung:</strong> P(B) > 0</li>
+                            <li><strong>Interpretation:</strong> Wahrscheinlichkeit für A unter der Bedingung, dass B eingetreten ist</li>
+                            <li><strong>Multiplikationsregel:</strong></li>
+                            <div class="formula">P(A ∩ B) = P(A|B) × P(B)</div>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Stochastische Unabhängigkeit</h3>
+                        <p>Wann sind zwei Ereignisse stochastisch unabhängig?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Definition:</strong> A und B sind unabhängig, wenn:</li>
+                            <div class="formula">P(A ∩ B) = P(A) × P(B)</div>
+                            <li><strong>Äquivalent:</strong></li>
+                            <div class="formula">P(A|B) = P(A) (falls P(B) > 0)</div>
+                            <li><strong>Interpretation:</strong> Das Eintreten von B ändert nichts an der Wahrscheinlichkeit von A</li>
+                            <li><strong>Wichtig:</strong> Unabhängigkeit ≠ Disjunktheit!</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Gesetz der totalen Wahrscheinlichkeit</h3>
+                        <p>Wie berechnet man Wahrscheinlichkeiten mit vollständigen Zerlegungen?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Vollständige Zerlegung:</strong> B₁, B₂, ..., Bₙ disjunkt und ∪Bᵢ = Ω</li>
+                            <li><strong>Formel:</strong></li>
+                            <div class="formula">P(A) = Σ P(A|Bᵢ) × P(Bᵢ)</div>
+                            <li><strong>Anwendung:</strong> Wenn direkte Berechnung von P(A) schwierig ist</li>
+                            <li><strong>Beispiel:</strong> Verschiedene Maschinen produzieren unterschiedliche Ausschussraten</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Satz von Bayes</h3>
+                        <p>Wie kann man von P(A|B) auf P(B|A) schließen?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Formel:</strong></li>
+                            <div class="formula">P(Bⱼ|A) = P(A|Bⱼ) × P(Bⱼ) / P(A)</div>
+                            <li><strong>Mit totaler Wahrscheinlichkeit:</strong></li>
+                            <div class="formula">P(Bⱼ|A) = P(A|Bⱼ) × P(Bⱼ) / Σ P(A|Bᵢ) × P(Bᵢ)</div>
+                            <li><strong>Interpretation:</strong> Update von Wahrscheinlichkeiten mit neuer Information</li>
+                            <li><strong>Anwendung:</strong> Medizinische Tests, Spam-Filter</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KW 25: Diskrete Zufallsvariablen -->
+        <div id="week25" class="week-section">
+            <div class="week-title">
+                <h2>KW 25: Diskrete Zufallsvariablen</h2>
+                <p>Zufallsvariablen, Parameter von diskreten Zufallsvariablen, Bivariate diskrete Verteilungen</p>
+            </div>
+            <div class="cards-grid">
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Zufallsvariable</h3>
+                        <p>Was ist eine Zufallsvariable und wie unterscheidet sie sich von einem Ereignis?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Definition:</strong> Funktion X: Ω → ℝ, die jedem Ergebnis eine reelle Zahl zuordnet</li>
+                            <li><strong>Diskret:</strong> Abzählbar viele Werte</li>
+                            <li><strong>Stetig:</strong> Überabzählbar viele Werte</li>
+                            <li><strong>Notation:</strong> X(ω) = x</li>
+                            <li><strong>Beispiel:</strong> Augensumme beim Würfeln mit zwei Würfeln</li>
+                            <li><strong>Vorteil:</strong> Rechnen mit Zahlen statt Ereignissen</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Wahrscheinlichkeitsfunktion</h3>
+                        <p>Wie wird die Wahrscheinlichkeitsverteilung einer diskreten Zufallsvariable beschrieben?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Wahrscheinlichkeitsfunktion:</strong></li>
+                            <div class="formula">f(x) = P(X = x)</div>
+                            <li><strong>Eigenschaften:</strong>
+                                <ul style="margin-top: 8px; font-size: 0.9rem;">
+                                    <li>• f(x) ≥ 0 für alle x</li>
+                                    <li>• Σ f(x) = 1</li>
+                                </ul>
+                            </li>
+                            <li><strong>Verteilungsfunktion:</strong></li>
+                            <div class="formula">F(x) = P(X ≤ x) = Σ f(t) für alle t ≤ x</div>
+                            <li><strong>Eigenschaften:</strong> Monoton steigend, rechtsseitig stetig</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Erwartungswert</h3>
+                        <p>Wie wird der Erwartungswert einer diskreten Zufallsvariable berechnet?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Definition:</strong></li>
+                            <div class="formula">E[X] = μ = Σ x × f(x)</div>
+                            <li><strong>Interpretation:</strong> "Schwerpunkt" der Verteilung</li>
+                            <li><strong>Linearität:</strong></li>
+                            <div class="formula">E[aX + b] = a × E[X] + b</div>
+                            <li><strong>Für Funktionen von X:</strong></li>
+                            <div class="formula">E[g(X)] = Σ g(x) × f(x)</div>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Varianz & Standardabweichung</h3>
+                        <p>Wie werden Varianz und Standardabweichung einer Zufallsvariable definiert?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Varianz:</strong></li>
+                            <div class="formula">Var(X) = σ² = E[(X - μ)²]</div>
+                            <li><strong>Verschiebungssatz:</strong></li>
+                            <div class="formula">Var(X) = E[X²] - (E[X])²</div>
+                            <li><strong>Standardabweichung:</strong></li>
+                            <div class="formula">σ = √Var(X)</div>
+                            <li><strong>Transformation:</strong></li>
+                            <div class="formula">Var(aX + b) = a² × Var(X)</div>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KW 26: Spezielle diskrete Verteilungen (I) -->
+        <div id="week26" class="week-section">
+            <div class="week-title">
+                <h2>KW 26: Spezielle diskrete Verteilungen (I)</h2>
+                <p>Binomialverteilung, Hypergeometrische Verteilung, Geometrische Verteilung</p>
+            </div>
+            <div class="cards-grid">
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Binomialverteilung</h3>
+                        <p>Wann wird die Binomialverteilung verwendet und wie ist sie definiert?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Anwendung:</strong> n unabhängige Bernoulli-Versuche mit Erfolgswahrscheinlichkeit p</li>
+                            <li><strong>X ~ B(n,p):</strong> Anzahl der Erfolge in n Versuchen</li>
+                            <li><strong>Wahrscheinlichkeitsfunktion:</strong></li>
+                            <div class="formula">P(X = k) = (n k) × p^k × (1-p)^(n-k)</div>
+                            <li><strong>Erwartungswert:</strong> E[X] = n × p</li>
+                            <li><strong>Varianz:</strong> Var(X) = n × p × (1-p)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Hypergeometrische Verteilung</h3>
+                        <p>Wann wird die hypergeometrische Verteilung verwendet?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Anwendung:</strong> Ziehen ohne Zurücklegen aus endlicher Grundgesamtheit</li>
+                            <li><strong>Parameter:</strong> N (Gesamtanzahl), M (Anzahl "Erfolge"), n (Stichprobengröße)</li>
+                            <li><strong>X ~ H(N,M,n):</strong> Anzahl Erfolge in der Stichprobe</li>
+                            <li><strong>Wahrscheinlichkeitsfunktion:</strong></li>
+                            <div class="formula">P(X = k) = (M k)(N-M n-k) / (N n)</div>
+                            <li><strong>Erwartungswert:</strong> E[X] = n × M/N</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Geometrische Verteilung</h3>
+                        <p>Was modelliert die geometrische Verteilung?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Anwendung:</strong> Wartezeit bis zum ersten Erfolg</li>
+                            <li><strong>X ~ Geo(p):</strong> Anzahl Versuche bis zum ersten Erfolg</li>
+                            <li><strong>Wahrscheinlichkeitsfunktion:</strong></li>
+                            <div class="formula">P(X = k) = (1-p)^(k-1) × p für k = 1,2,3,...</div>
+                            <li><strong>Erwartungswert:</strong> E[X] = 1/p</li>
+                            <li><strong>Varianz:</strong> Var(X) = (1-p)/p²</li>
+                            <li><strong>Eigenschaft:</strong> Gedächtnislosigkeit</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Vergleich der Verteilungen</h3>
+                        <p>Wann verwendet man welche Verteilung?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Binomial:</strong> Feste Anzahl unabhängiger Versuche</li>
+                            <li><strong>Hypergeometrisch:</strong> Ziehen ohne Zurücklegen, endliche Population</li>
+                            <li><strong>Geometrisch:</strong> Wartezeit bis zum ersten Erfolg</li>
+                            <li><strong>Approximation:</strong> Hypergeometrisch → Binomial (wenn N >> n)</li>
+                            <li><strong>Beispiele:</strong> Münzwurf (Binomial), Lotto (Hypergeometrisch), Maschinenwartung (Geometrisch)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KW 27: Spezielle diskrete Verteilungen (II) -->
+        <div id="week27" class="week-section">
+            <div class="week-title">
+                <h2>KW 27: Spezielle diskrete Verteilungen (II)</h2>
+                <p>Negative Binomialverteilung, Poissonverteilung, Multinomialverteilung</p>
+            </div>
+            <div class="cards-grid">
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Negative Binomialverteilung</h3>
+                        <p>Was modelliert die negative Binomialverteilung?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Anwendung:</strong> Wartezeit bis zum r-ten Erfolg</li>
+                            <li><strong>X ~ NB(r,p):</strong> Anzahl Versuche bis zum r-ten Erfolg</li>
+                            <li><strong>Wahrscheinlichkeitsfunktion:</strong></li>
+                            <div class="formula">P(X = k) = (k-1 r-1) × p^r × (1-p)^(k-r)</div>
+                            <li><strong>Erwartungswert:</strong> E[X] = r/p</li>
+                            <li><strong>Varianz:</strong> Var(X) = r(1-p)/p²</li>
+                            <li><strong>Spezialfall:</strong> r = 1 → Geometrische Verteilung</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Poissonverteilung</h3>
+                        <p>Wann wird die Poissonverteilung verwendet?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Anwendung:</strong> Seltene Ereignisse in festem Zeitraum/Bereich</li>
+                            <li><strong>X ~ Po(λ):</strong> Anzahl Ereignisse bei Rate λ</li>
+                            <li><strong>Wahrscheinlichkeitsfunktion:</strong></li>
+                            <div class="formula">P(X = k) = e^(-λ) × λ^k / k!</div>
+                            <li><strong>Erwartungswert:</strong> E[X] = λ</li>
+                            <li><strong>Varianz:</strong> Var(X) = λ</li>
+                            <li><strong>Approximation:</strong> Binomial mit n groß, p klein, np = λ</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Multinomialverteilung</h3>
+                        <p>Was ist die Multinomialverteilung?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Anwendung:</strong> Verallgemeinerung der Binomialverteilung auf k > 2 Kategorien</li>
+                            <li><strong>Parameter:</strong> n Versuche, k Kategorien mit Wahrscheinlichkeiten p₁, ..., pₖ</li>
+                            <li><strong>Wahrscheinlichkeitsfunktion:</strong></li>
+                            <div class="formula">P(X₁=x₁,...,Xₖ=xₖ) = n!/(x₁!...xₖ!) × p₁^x₁ × ... × pₖ^xₖ</div>
+                            <li><strong>Bedingung:</strong> Σxᵢ = n, Σpᵢ = 1</li>
+                            <li><strong>Beispiel:</strong> Würfel mit 6 Seiten</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Approximationen & Grenzwertsätze</h3>
+                        <p>Welche wichtigen Approximationen gibt es zwischen den Verteilungen?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Poisson-Approximation:</strong> B(n,p) ≈ Po(np) wenn n groß, p klein</li>
+                            <li><strong>Hypergeometrisch → Binomial:</strong> Wenn N >> n</li>
+                            <li><strong>Anwendung Poisson:</strong> Anzahl Anrufe, Unfälle, Druckfehler</li>
+                            <li><strong>Faustregel:</strong> np < 10 und n > 1500p für Poisson-Approximation</li>
+                            <li><strong>Vorteil:</strong> Einfachere Berechnungen bei großen n</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showWeek(weekId) {
+            // Hide all week sections
+            const sections = document.querySelectorAll('.week-section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected week
+            document.getElementById(weekId).classList.add('active');
+            
+            // Update navigation buttons
+            const buttons = document.querySelectorAll('.nav-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function flipCard(card) {
+            card.classList.toggle('flipped');
+        }
+
+        // Add keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === ' ' || event.key === 'Enter') {
+                const activeCards = document.querySelectorAll('.week-section.active .flashcard');
+                activeCards.forEach(card => {
+                    if (card === document.activeElement) {
+                        flipCard(card);
+                    }
+                });
+            }
+        });
+
+        // Make cards focusable for accessibility
+        document.addEventListener('DOMContentLoaded', function() {
+            const flashcards = document.querySelectorAll('.flashcard');
+            flashcards.forEach(card => {
+                card.setAttribute('tabindex', '0');
+                card.setAttribute('role', 'button');
+                card.setAttribute('aria-label', 'Karteikarte umdrehen');
+            });
+        });
+    </script>
+</body>
+</html>
+            Grundgesamtheit & Statistische Einheit</h3>
+                        <p>Was sind die drei wichtigsten Begriffe zur Definition des Untersuchungsgegenstandes?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Grundgesamtheit (Population):</strong> Alle Objekte, über die Aussagen getroffen werden sollen</li>
+                            <li><strong>Statistische Einheit:</strong> Einzelne Objekte der Grundgesamtheit (Proband, Merkmalsträger)</li>
+                            <li><strong>Statistische Größe:</strong> Eigenschaft, die an statistischen Einheiten beobachtet wird (Merkmal)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Skalierungsarten</h3>
+                        <p>Welche drei Haupttypen von Skalierungsarten gibt es und wie sind sie hierarchisch geordnet?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Nominalskala:</strong> Qualitative Merkmale, nur Gleichheit/Ungleichheit (z.B. Geschlecht, Familienstand)</li>
+                            <li><strong>Ordinalskala:</strong> Rangordnung möglich (z.B. Schulnoten, Zufriedenheit)</li>
+                            <li><strong>Kardinalskala (metrisch):</strong> Abstände messbar
+                                <ul style="margin-top: 10px; font-size: 0.9rem;">
+                                    <li>• Intervallskala (kein nat. Nullpunkt)</li>
+                                    <li>• Verhältnisskala (nat. Nullpunkt)</li>
+                                    <li>• Absolutskala (nat. Nullpunkt + Maßeinheit)</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Diskrete vs. Stetige Merkmale</h3>
+                        <p>Wie unterscheiden sich diskrete und stetige Merkmale? Geben Sie je ein Beispiel.</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Diskrete Merkmale:</strong> Abzählbar endlich oder abzählbar unendlich viele Ausprägungen</li>
+                            <li><strong>Beispiele:</strong> Anzahl Kinder, Augenzahl beim Würfel, Anzahl Autos</li>
+                            <li><strong>Stetige Merkmale:</strong> Überabzählbar unendlich viele Ausprägungen in einem Intervall</li>
+                            <li><strong>Beispiele:</strong> Körpergröße, Gewicht, Temperatur, Zeit</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Ablauf einer statistischen Analyse</h3>
+                        <p>Welche 7 Schritte umfasst der Ablauf einer statistischen Untersuchung?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li>A) Problemstellung</li>
+                            <li>B) Konkretisierung</li>
+                            <li>C) Versuchsplanung</li>
+                            <li>D) Erhebungstechnik</li>
+                            <li>E) Durchführung der Erhebung</li>
+                            <li>F) Auswertung</li>
+                            <li>G) Interpretation</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KW 17: Statistische Merkmale und Häufigkeiten -->
+        <div id="week17" class="week-section">
+            <div class="week-title">
+                <h2>KW 17: Statistische Merkmale und Häufigkeiten</h2>
+                <p>Häufigkeiten für sortierte und gruppierte Daten, Verteilungsfunktionen, Histogramme</p>
+            </div>
+            <div class="cards-grid">
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Absolute & Relative Häufigkeiten</h3>
+                        <p>Wie berechnet man absolute und relative Häufigkeiten? Was ist der Zusammenhang?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Absolute Häufigkeit h(aⱼ):</strong> Anzahl der Beobachtungen mit Merkmalsausprägung aⱼ</li>
+                            <li><strong>Relative Häufigkeit f(aⱼ):</strong></li>
+                            <div class="formula">f(aⱼ) = h(aⱼ) / n</div>
+                            <li><strong>Eigenschaften:</strong> 0 ≤ f(aⱼ) ≤ 1</li>
+                            <li>Summe aller relativen Häufigkeiten = 1</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Gruppierte Daten & Klassenbildung</h3>
+                        <p>Wann und wie werden Daten gruppiert? Was sind die wichtigsten Regeln?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Wann:</strong> Bei vielen Ausprägungen (besonders stetige Merkmale)</li>
+                            <li><strong>Notation:</strong> Halboffene Intervalle [g₀ - g₁), [g₁ - g₂), ...</li>
+                            <li><strong>Gruppenbreite:</strong> bⱼ = gⱼ - gⱼ₋₁</li>
+                            <li><strong>Gruppenmitte:</strong> mⱼ = (gⱼ + gⱼ₋₁) / 2</li>
+                            <li><strong>Empfehlung:</strong> 10 Klassen bei n=100, 13 bei n=1000</li>
+                            <li><strong>Problem:</strong> Informationsverlust durch Gruppierung</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Histogramme</h3>
+                        <p>Was ist das Prinzip der Flächentreue bei Histogrammen?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Prinzip der Flächentreue:</strong> Blockfläche (nicht Höhe!) repräsentiert die Häufigkeit</li>
+                            <li><strong>Häufigkeitsdichte:</strong></li>
+                            <div class="formula">f̃ⱼ = fⱼ / bⱼ</div>
+                            <li><strong>Blockhöhe = Häufigkeitsdichte</strong></li>
+                            <li><strong>Blockfläche = Häufigkeitsdichte × Klassenbreite = Relative Häufigkeit</strong></li>
+                            <li>Besonders wichtig bei ungleichen Klassenbreiten</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Kumulierte Häufigkeiten & Verteilungsfunktion</h3>
+                        <p>Wie werden kumulierte Häufigkeiten berechnet und was zeigt die empirische Verteilungsfunktion?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Kumulierte absolute Häufigkeit:</strong></li>
+                            <div class="formula">H(x) = Σ h(aⱼ) für alle aⱼ ≤ x</div>
+                            <li><strong>Kumulierte relative Häufigkeit:</strong></li>
+                            <div class="formula">F(x) = Σ f(aⱼ) für alle aⱼ ≤ x</div>
+                            <li><strong>Empirische Verteilungsfunktion:</strong> Anteil der Beobachtungen ≤ x</li>
+                            <li><strong>Eigenschaften:</strong> Monoton steigend, 0 ≤ F(x) ≤ 1</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KW 18: Empirische Kennzahlen (I) - Lagemaße -->
+        <div id="week18" class="week-section">
+            <div class="week-title">
+                <h2>KW 18: Empirische Kennzahlen (I) - Lageparameter</h2>
+                <p>Mittelwerte, Median, Modus, Quantile</p>
+            </div>
+            <div class="cards-grid">
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Modus (Modalwert)</h3>
+                        <p>Was ist der Modus und welche Eigenschaften hat er?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Definition:</strong> Wert mit der größten Häufigkeit</li>
+                            <li><strong>Skalierungsart:</strong> Ab Nominalniveau verwendbar</li>
+                            <li><strong>Eigenschaften:</strong>
+                                <ul style="margin-top: 8px; font-size: 0.9rem;">
+                                    <li>• Nicht ausreißerempfindlich</li>
+                                    <li>• Realitätsnah (immer beobachteter Wert)</li>
+                                    <li>• Kann mehrere Modi geben</li>
+                                </ul>
+                            </li>
+                            <li><strong>Bei gruppierten Daten:</strong> Klassenmitte der dichtesten Gruppe</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Median</h3>
+                        <p>Wie wird der Median berechnet und welche Eigenschaften hat er?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Definition:</strong> "Mittlerer" Wert des geordneten Datensatzes</li>
+                            <li><strong>Berechnung:</strong></li>
+                            <div class="formula">
+                                x̃ = x₍(n+1)/2₎ wenn n ungerade<br>
+                                x̃ = ½[x₍n/2₎ + x₍n/2+1₎] wenn n gerade
+                            </div>
+                            <li><strong>Eigenschaften:</strong> Teilt Daten in obere/untere 50%, nicht ausreißerempfindlich</li>
+                            <li><strong>Skalierungsart:</strong> Ab Ordinalniveau</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Arithmetisches Mittel</h3>
+                        <p>Wie wird das arithmetische Mittel berechnet und welche Eigenschaften hat es?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Ungruppierte Daten:</strong></li>
+                            <div class="formula">x̄ = (1/n) × Σxᵢ</div>
+                            <li><strong>Gruppierte Daten:</strong></li>
+                            <div class="formula">x̄ = Σ(aⱼ × fⱼ) oder Σ(mⱼ × fⱼ)</div>
+                            <li><strong>Eigenschaften:</strong>
+                                <ul style="margin-top: 8px; font-size: 0.9rem;">
+                                    <li>• Ausreißerempfindlich</li>
+                                    <li>• Kardinalskalierte Merkmale</li>
+                                    <li>• Muss kein beobachteter Wert sein</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Quantile</h3>
+                        <p>Was sind Quantile und wie werden sie berechnet?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Definition:</strong> Werte, die Daten in bestimmte Anteile teilen</li>
+                            <li><strong>p-Quantil xₚ:</strong> Anteil p der Daten ist ≤ xₚ</li>
+                            <li><strong>Spezielle Quantile:</strong>
+                                <ul style="margin-top: 8px; font-size: 0.9rem;">
+                                    <li>• Median: x₀.₅ (50%-Quantil)</li>
+                                    <li>• Quartile: x₀.₂₅, x₀.₅, x₀.₇₅</li>
+                                    <li>• Dezile: x₀.₁, x₀.₂, ..., x₀.₉</li>
+                                </ul>
+                            </li>
+                            <li><strong>Bedingung:</strong> F(xₚ) ≥ p</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KW 19: Empirische Kennzahlen (II) - Streuung -->
+        <div id="week19" class="week-section">
+            <div class="week-title">
+                <h2>KW 19: Empirische Kennzahlen (II) - Streuungsparameter</h2>
+                <p>Spannweite, Quantilsabstand, Varianz, Variationskoeffizient, Schiefe</p>
+            </div>
+            <div class="cards-grid">
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Spannweite & Quantilsabstand</h3>
+                        <p>Wie werden die einfachsten Streuungsmaße berechnet?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Spannweite:</strong></li>
+                            <div class="formula">SP = x_max - x_min</div>
+                            <li><strong>Quantilsabstand:</strong></li>
+                            <div class="formula">Qₚ = x₁₋ₚ - xₚ</div>
+                            <li><strong>Interquartilsabstand:</strong></li>
+                            <div class="formula">Q₀.₂₅ = x₀.₇₅ - x₀.₂₅</div>
+                            <li><strong>Eigenschaften:</strong> Spannweite ausreißerempfindlich, Quantilsabstände robuster</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>Empirische Varianz & Standardabweichung</h3>
+                        <p>Wie werden Varianz und Standardabweichung berechnet?</p>
+                        <div class="flip-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <ul>
+                            <li><strong>Empirische Varianz:</strong></li>
+                            <div class="formula">s² = (1/n) × Σ(xᵢ - x̄)²</div>
+                            <li><strong>Standardabweichung:</strong></li>
+                            <div class="formula">s = √s²</div>
+                            <li><strong>Verschiebungssatz:</strong></li>
+                            <div class="formula">s² = (1/n) × Σxᵢ² - x̄²</div>
+                            <li><strong>Eigenschaften:</strong> Ausreißerempfindlich, kardinal skaliert</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="card-face card-front">
+                        <h3>
