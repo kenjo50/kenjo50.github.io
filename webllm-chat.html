@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="de">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>WebLLM Chat (rein im Browser)</title>
+<style>
+  .chat {position:fixed;right:16px;bottom:16px;width:360px;max-width:92vw;height:520px;
+    display:flex;flex-direction:column;border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.25);
+    background:#fff;font-family:system-ui,Segoe UI,Roboto,Arial;overflow:hidden}
+  header{padding:12px 14px;font-weight:600;border-bottom:1px solid #eee}
+  .log{flex:1;overflow:auto;padding:12px}
+  .msg{margin:8px 0;max-width:85%}.me{margin-left:auto;text-align:right}
+  .bubble{display:inline-block;padding:10px 12px;border-radius:12px;background:#f1f1f1;white-space:pre-wrap}
+  .me .bubble{background:#e6f0ff}
+  form{display:flex;gap:8px;border-top:1px solid #eee;padding:10px}
+  input{flex:1;padding:10px;border:1px solid #ddd;border-radius:8px}
+  button{padding:10px 12px;border:0;border-radius:8px;background:#111;color:#fff;cursor:pointer}
+  .progress{font-size:12px;color:#666;padding:8px 12px;border-bottom:1px solid #eee}
+</style>
+<div class="chat" id="chat">
+  <header>Chat (lokal im Browser)</header>
+  <div class="progress" id="p">Modell lädt…</div>
+  <div class="log" id="log"></div>
+  <form id="f"><input id="q" placeholder="Frage eingeben…" autocomplete="off"><button>Senden</button></form>
+</div>
+<script type="module">
+  // WebLLM per ESM laden (kein Build nötig)
+  const webllm = await import("https://esm.run/@mlc-ai/web-llm");
+  const log = document.getElementById('log'), p = document.getElementById('p');
+  const add = (t, me=false)=>{ const d=document.createElement('div'); d.className='msg'+(me?' me':'');
+    const b=document.createElement('div'); b.className='bubble'; b.textContent=t; d.appendChild(b); log.appendChild(d); log.scrollTop=log.scrollHeight; };
+
+  // Modell wählen (Demo-String aus der Doku; erste Initialisierung kann lange dauern)
+  const model = "Llama-3.1-8B-Instruct-q4f32_1-MLC";
+  const engine = await webllm.CreateMLCEngine(model, {
+    initProgressCallback: (s)=> p.textContent = s.text || `Lade… ${Math.round((s.progress||0)*100)}%`
+  });
+  p.textContent = "Bereit.";
+
+  const sysPrompt = "Du bist ein hilfsbereiter deutscher Assistent.";
+  const history = [{role:"system", content:sysPrompt}];
+
+  document.getElementById('f').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const q = document.getElementById('q'); const msg = q.value.trim(); if(!msg) return;
+    q.value=""; add(msg,true); add("…");
+    history.push({role:"user", content:msg});
+    const out = await engine.chat.completions.create({ messages: history });
+    const reply = out?.choices?.[0]?.message?.content ?? "(keine Antwort)";
+    history.push({role:"assistant", content:reply});
+    log.lastChild.querySelector('.bubble').textContent = reply;
+  });
+</script>
+</html>
